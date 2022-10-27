@@ -1,0 +1,37 @@
+---
+title: "survival curve"
+author: "Yi"
+output: github_document
+---
+
+install.packages("ggsurvfit")
+
+```{r}
+library(tidyverse)
+library(ggsurvfit)
+library(survival)
+```
+
+
+```{r}
+midterm = read_csv(file = "./data/MidtermProjectData.csv") %>% 
+  janitor::clean_names() %>% 
+  mutate(
+    deptime = if_else(bedepon == -1, ptage, bedepon),
+    pardep = if_else(pardep == 1, "Ever depressed", "Never depressed")
+  ) %>% 
+  select(ptage, bedepon, dsmdephr, pardep, deptime)
+```
+
+
+  
+```{r}
+survfit2(Surv(deptime, dsmdephr) ~ pardep, data = midterm) %>% 
+  ggsurvfit() +
+  labs(
+    x = "years",
+    y = "Overall survival probability"
+  )+
+  add_risktable()
+```
+
